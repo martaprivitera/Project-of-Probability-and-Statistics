@@ -5,3 +5,6 @@ The objective of the analysis is to assess the variation of life expectancy in d
 ## Content
 
 The project's content and a step-by-step explanation can be found within the files included in this repository.
+
+- The file MARKDOWN_completo.html contains the HTML version of the project.
+- The file MARKDOWN_completo.rmd contains the R Markdown version of the project.
