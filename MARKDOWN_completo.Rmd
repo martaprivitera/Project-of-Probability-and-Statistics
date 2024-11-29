@@ -1,0 +1,854 @@
+---
+title: "Foundation of Probability and Statistics Project"
+Fracchia Camilla matr:"898235"
+Salvatori Ilaria matr:"898009"
+Privitera Marta matr:"898017"
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**AIM OF THE ANALYSIS**
+
+The objective of the analysis is to assess the variation of life expectancy in developed and developing countries on the basis of the analyses carried out on the variables of the dataset under consideration.
+
+**DATASET PREPARATION AND CLEANING**
+
+From the website www.kaggle.com has been downloaded the "Life Expectancy" dataset. In order to address the problem of missing values we have used KNIME software and we have changed the NULL values of qualitative variables with moda and the NULL values of quantitative variables with mean.
+
+```{r}
+LifeExpectancyNoMissingData<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\LifeExpectancyNoMissingData.csv', header=TRUE, sep=';')
+head(LifeExpectancyNoMissingData)
+
+```
+
+Subsequently, through the use of Python software, it was decided to focus the analysis only on the year 2014, without considering the changes in the phenomenon that have occurred over the years.In addition, the original dataset has been divided on the basis of the variable 'Status': in this way, two separate tables have been obtained containing respectively one data concerning developed countries, the other data on developing countries.
+
+**ANALISI PRELIMINARI**
+
+-   DATASET DEVELOPED
+
+```{r}
+developed_tot<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\developed_2014.csv', header=TRUE, sep=',')
+developed_tot$row.ID<-NULL #per non leggere la colonna rowId 
+head(developed_tot)
+tail(developed_tot)
+```
+
+Through the functions *head( )* and *tail( )* it is possible to visually synthesize the dataset, in order to observe only the first 6 rows and the last 6 rows of the table.
+
+```{r}
+
+str(developed_tot)
+
+```
+
+Using the function *str( )* we obtain in the output the characteristics of the dataframe, which reports 38 observations on 22 variables. In addition, the class to which the column indices belong and some values associated with each variable are highlighted.
+
+**Scatter plot of developed countries**
+
+```{r echo=TRUE, fig.height=20, fig.width=20, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(psych)
+pairs.panels(developed_tot[,4:22], pch = 19)
+```
+
+Through the *pairs.panel( )* function, the correlation between the variables of the dataset has been studied. Below some inherent considerations:
+
+-   In developed countries, there is a good negative correlation between the variables "Life expectancy" and "adult mortality". The same applies to the correlation between the variables "percentage of expenditures" and "thiness" (both).
+
+-   As expected, there is a high level of positive correlation between the variables "Thiness1.19 Years" and "Thiness 5.9 years", since they are variables analyzing the same phenomenon. The same can be verified for the ratio of the variables "infant deth" and "under five deth".
+
+-   There is also a positive correlation between the variables "GDP" and "percentage of expenditures".
+
+-   There could be a vague positive correlation between the variables "Alchol" and "Adult mortality". This is not observed between alcohol consumption and life expectancy because the latter is influenced by variables that are not involved in the calculation of the adult mortality rate, like all infant rates.
+
+-   DATASET DEVELOPING
+
+The same steps are repeated to carry out a preliminary analysis of the dataset concerning developing countries.
+
+```{r}
+developing_tot<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\developing_2014.csv', header=TRUE, sep=',')
+developing_tot$row.ID<-NULL
+head(developing_tot)
+```
+
+```{r}
+str(developing_tot)
+```
+
+**Scatter plot of developing countries**
+
+```{r echo=TRUE, fig.height=20, fig.width=20, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(psych)
+pairs.panels(developing_tot[,4:22], pch = 19)
+```
+
+In addition to the predictable correlations already set out for the developed countries, which also apply to the developing countries, we can. make some interesting observations:
+
+-   Compared to developed countries, there is a much higher positive correlation between the variables "Schooling" and "Incomes composition rescue".
+
+-   Observe how the variable "Schooling" is more correlated to other variables than what is observed in the scatter plot of the developed countries. In particular, it is positively related to "Life Expectancy", "Incomes composition rescue" and BMI, and negatively to "Adult Mortality". From this observation, you could hypothesize in a higher rate of schooling corresponds to a higher level of well-being.
+
+-   It is also worth noting the presence of a positive correlation between "Life expectancy" and "Incomes Composition rescue", which is also negatively correlated with "Adult Mortality".
+
+-   In developing countries there is a good positive correlation between "Adult Mortality" and "HIV"; which is absolutely not valid for developed countries, where the variable "HIV" occurs with a frequency close to 0.
+
+-   Another difference from the matrix of developed countries is that in developing countries there does not seem to be a correlation between "Adult mortality" and "Alchol".
+
+**PROCEEDING WITH THE DESCRIPTIVE ANALYSIS**
+
+To carry out the main descriptive analyses of our interest, we have focused on three variables in particular: "life expectancy", "adult mortality" and "alchol". This was possible through the creation of a new dataset containing only these three variables, respectively for developed and developing countries.
+
+-   DEVELOPED COUNTRIES
+
+```{r}
+developed<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\regression_developed.csv', header=TRUE, sep=',')
+head(developed)
+```
+
+We focus on the descriptive analysis of the quantitative variables of this dataset using the *summary( )* command:
+
+```{r}
+summary(developed[,2:4])
+```
+
+From a quick observation it can be seen that the average and median life expectancy in developed countries are almost the same. From this we can say that the average is not affected by the presence of outliers. For the variable "alchol", however, a deviation of the mean from the median is evident, even if not particularly heavy.
+
+**Analysis of media property**
+
+We verify that the property of the mean is respected for which the value of the arithmetic mean is greater than that geometry and the harmonic one. By running the code you can see how the property A \<G \<x is respected, where x is the arithmetic mean and is positive.
+
+```{r}
+#geometric mean
+G<- function(x){(prod(x))^(1/n)}
+n<-nrow(developed)
+G(developed$Life.expectancy)
+G(developed$Adult.Mortality)
+G(developed$Alcohol)
+
+
+#harmonic mean
+A<-function(x){mean(1/x)^-1}
+A(developed$Life.expectancy)
+A(developed$Adult.Mortality)
+A(developed$Alcohol)
+
+```
+
+```{r}
+
+#developed$Life.expectancy                  
+A(developed$Life.expectancy)                
+G(developed$Life.expectancy)               
+mean(developed$Life.expectancy) 
+
+#developed$Adult.Mortality
+A(developed$Adult.Mortality)                
+G(developed$Adult.Mortality)               
+mean(developed$Adult.Mortality)
+
+#developed$Alcohol
+A(developed$Alcohol)
+G(developed$Alcohol)
+mean(developed$Alcohol)
+```
+
+**Range of variation** We evaluate the range of variation of the variables of interest, keeping in mind that it is an extremely sensitive value to the influence of outliers.
+
+```{r}
+x_min<-min(developed$Life.expectancy)         
+x_max<-max(developed$Life.expectancy) 
+range_life_expectancy<-x_max-x_min
+range_life_expectancy
+
+x_min_1<-min(developed$Adult.Mortality)
+x_max_1<-max(developed$Adult.Mortality)                            
+range_adult_mortality<-x_max_1-x_min_1
+range_adult_mortality
+
+x_min_2<-min(developed$Alcohol)
+x_max_2<-max(developed$Alcohol)                            
+range_alcohol<-x_max_2-x_min_2
+range_alcohol
+
+```
+
+**IQR** Indicates the amplitude of the range that contains 50% of the observations (between Q1 and Q3). It is a more robust measure of variability in the range and therefore more reliable in the presence of outliers.
+
+```{r}
+quantile(developed$Life.expectancy)[2]    
+quantile(developed$Life.expectancy)[4]
+
+quantile(developed$Adult.Mortality)[2]
+quantile(developed$Adult.Mortality)[4]
+
+quantile(developed$Alcohol)[2]        
+quantile(developed$Alcohol)[4]
+
+IQR(developed$Life.expectancy)
+IQR(developed$Adult.Mortality)
+IQR(developed$Alcohol)
+```
+
+-   DEVELOPING COUNTRIES
+
+The same steps are repeated to carry out a preliminary analysis of the dataset concerning developing countries.The calculations relating to compliance with the propriety of the average are not repeated, since they were previously carried out for illustrative purposes only.
+
+```{r}
+developing<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\regression_developing.csv', header=TRUE, sep=',')
+head(developing)
+```
+
+```{r}
+summary(developing [,2:4]) 
+```
+
+Compared to what is observed for developed countries, here we note a greater deviation of the average from the median both for the variable "Life expectancy", and for the variable "Alchol". Through the boxplots, it will then be possible to understand if actually in this case there is a greater incidence of outliers.
+
+**Range of variation**
+
+```{r}
+x_MIN<-min(developing$Life.expectancy)    
+x_MAX<-max(developing$Life.expectancy)
+x_MAX-x_MIN
+
+x_MIN_1<-min(developing$Adult.Mortality)
+x_MAX_1<-max(developing$Adult.Mortality)
+x_MAX_1-x_MIN_1 
+
+x_MIN_2<-min(developing$Alcohol)
+x_MAX_2<-max(developing$Alcohol)
+x_MAX_2-x_MIN_2  
+
+```
+
+Compared to the developed countries, it is clear that the range is wider.
+
+**IQR**
+
+```{r}
+IQR(developing$Life.expectancy)
+IQR(developing$Adult.Mortality)
+IQR(developing$Alcohol)
+```
+
+The values seen so far, both for developed countries and for developing countries, will be useful for us to build the box blots of the variables involved. In particular, observing these data you can already imagine what will be the appearance of the boxplot reported later.
+
+**How the box plots will appear?**
+
+**Variabile Life Expectancy**: in developed countries, the median is 81.85 years and this value is within a range of 15.4 and, more precisely, within an IQ range of 4.85.In developed countries, the median of the variable "Life expectancy" is lower (70) and is within a much wider range of variation (34.9) and also the IQ range is higher (11). Therefore, the box plot of developed countries will appear with a more flattened box (since the IQ range is smaller) and moved more upwards (since the median is higher) than the box of developing countries.In addition, top mustache (calculated as Q0,75 1,5 *IQR) and bottom mustache (calculated as Q0,25-1,5* IQR) will also be closer to the box for developed countries and further away for developing countries.
+
+**Variabile Alchol**: In developed countries an IQR of 7.26 is observed, higher than the IQR of developing countries which is equal to 4.02. From this observation it can be said that the box of developed countries will be wider than that of developing countries.Moreover, there is a big difference in the Median (equal to. 8.94 in developed countries and 0.01 in developing countries), thanks to which we can say that the box of developed countries will be higher in the box plot than that of developing countries, which will indeed be crushed towards the minimum values (also because the minimum observed value is 0.01). In addition, it is interesting to note that the averages of developed and developing countries are respectively 7,528 and 2,165, but they are within two ranges not particularly different ( 15,18 for developed countries and 13,93 for developing countries). From these observations, it can therefore be assumed that the distribution of alchol consumption in developing countries is affected by the presence of outliers (Arabic countries and Russia).
+
+**BOXPLOT**
+
+-   LIFE EXPECTANCY
+
+```{r warning=FALSE}
+developed_developing<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\developed&developing.csv', header=TRUE, sep=',')
+head(developed_developing)
+
+options(repr.plot.width=1,repr.plot.height=40,repr.plot.res=100)
+par(mar = c(5, 3, 4, 1) + 1.2)
+boxplot(developed_developing$Life.expectancy ~ developed_developing$Status, ylab = "Life Expectancy",xlab = "",col=c("green","yellow"), main="Life expectancy for developed and developing countries",cex.main=1.1, cex.names=1.1,cex.axis=1.1,ylim=c(45,100),cex.lab=1.0,cex.main=1.0)
+
+```
+
+-   ALCHOL
+
+```{r}
+options(repr.plot.width=10,repr.plot.height=12,repr.plot.res=100)
+par(mar = c(5, 3, 4, 1) + 1.2)
+boxplot(developed_developing$Alcohol~ developed_developing$Status, ylab = "Alcohol rate",xlab = "",col=c("grey","red"), main="Alcohol rate for developed and developing countries",cex.names=1.0,cex.axis=1.0,ylim=c(0,15),cex.lab=1.0,cex.main=1.0)
+
+```
+
+Looking at the boxplots we can therefore say that the hypothesis made with the preliminary data are correct.
+
+**Variance**
+
+It measures the deviation of observations from their average
+
+```{r}
+my_var<-function(x){mean(x^2)-(mean(x)^2)}
+
+#developed
+sigma_2_life_expectancy<-my_var(developed$Life.expectancy)
+sigma_2_adult_mortality<-my_var(developed$Adult.Mortality)
+sigma_2_alcohol<-my_var(developed$Alcohol) 
+
+sigma_2_life_expectancy
+sigma_2_adult_mortality
+sigma_2_alcohol
+
+#developing
+sigma_2_life_expectancy_developing<-my_var(developing$Life.expectancy)
+sigma_2_adult_mortality_developing<-my_var(developing$Adult.Mortality)
+sigma_2_alcohol_developing<-my_var(developing$Alcohol) 
+
+sigma_2_life_expectancy_developing
+sigma_2_adult_mortality_developing
+sigma_2_alcohol_developing
+
+```
+
+**Standard deviation**
+
+```{r}
+
+sqrt(sigma_2_life_expectancy)
+sqrt(sigma_2_adult_mortality)
+sqrt(sigma_2_alcohol)
+
+sqrt(sigma_2_life_expectancy_developing)
+sqrt(sigma_2_adult_mortality_developing)
+sqrt(sigma_2_alcohol_developing)
+
+```
+
+**Covariance** We calculate it to measure the strength of the relationship between x (life expectancy) and y (Alcohol)
+
+```{r}
+my_cov<-function(x,y){(mean(x*y))-(mean(x)*mean(y))}
+my_cov(developed$Life.expectancy, developed$Alcohol) 
+my_cov(developing$Life.expectancy, developing$Alcohol)
+
+```
+
+Also through a quick look at the standard deviations of the variables "Alchol" and "Life expectancy", we can see that the relationship is respected whereby: -s(x)s(y) \<=COV(x,y) \<= s(x)s(y)
+
+**Correlation Coefficient** To correctly interpret the value of covariance, the correlation coefficient must be calculated, which allows the normalization of covariance. Thanks to the correlation coefficient, it is also possible to establish or not the existence of a linear relationship.
+
+```{r}
+
+cor(developed$Life.expectancy, developed$Alcohol)
+
+cor(developing$Life.expectancy, developing$Alcohol)
+
+```
+
+In both cases the value of the correlation coefficient is greater than 0. Therefore, it can be said that there is a positive association between the two variables considered.
+
+**Dependency** We can now calculate the $\eta^{2}$ to assess the dependency on average between the variables *Life.expectancy* and *Status*.
+
+```{r}
+devLE=var(developed_developing$Life.expectancy)*length(developed_developing$Life.expectancy)
+LED=developed_developing[developed_developing$Status=="Developed",]$Life.expectancy
+LEUD=developed_developing[developed_developing$Status=="Developing",]$Life.expectancy
+devEN=var(LED)*length(LED)+var(LEUD)*length(LEUD)
+#il rapporto di correlazione è uguale a:
+round(1-devEN/devLE,3)
+
+```
+
+The index $\eta^{2}$ is rather low, indicating an existing dependence on average and therefore a significant difference between the two average. The same is for the *Alcohol* variable:
+
+```{r}
+devLE=var(developed_developing$Alcohol)*length(developed_developing$Alcohol)
+LED=developed_developing[developed_developing$Status=="Developed",]$Alcohol
+LEUD=developed_developing[developed_developing$Status=="Developing",]$Alcohol
+devEN=var(LED)*length(LED)+var(LEUD)*length(LEUD)
+#il rapporto di correlazione è uguale a:
+round(1-devEN/devLE,3)
+
+```
+
+**Contingency table** We compute the Contingency Table relating to *Life.expectancy* and *Status* and the corresponding $\chi^{2}$. In agreement with what has been observed until now between these two variables we find also a dependence on distribution. The two variables mutually influence each other. In fact $\chi^{2}$ is positive and significantly different from 0.
+
+```{r}
+developing<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\regression_developing.csv', header=TRUE, sep=',')
+developed<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\regression_developed.csv', header=TRUE, sep=',')
+
+#developed$Life.expectancy
+breaks <- c(50, 60, 70, 75, 80, 85)
+developed_life <- cut(developed$Life.expectancy, breaks=breaks) 
+freq_abs_developed <- table(developed_life)
+
+#developing$Life.expectancy
+breaks <- c(50, 60, 70, 75, 80, 85)
+developing_life <- cut(developing$Life.expectancy, breaks=breaks) 
+freq_abs_developing<- table(developing_life)
+
+#tablefreq
+tablefreq<-rbind(freq_abs_developed,freq_abs_developing)
+
+#summary(tablefreq)
+tab_rel<-prop.table(tablefreq)
+
+#addmargins(tablefreq)
+addmargins(tab_rel)
+
+#il comando prop.table consente di calcolare le frequenze condizionate relative cioè divide ciascuna frequenza assoluta in tab per la frequenza marginale corrispondente
+#prop.table(tablefreq,1) #distribuzione di ciascuna classe condizionata all'esito (y|x)
+#prop.table(tablefreq,2) #distribuzione di ciascun esito condizionato alla classe (x|y)
+
+
+n<-sum(tablefreq)
+
+f_rel<-tablefreq/n
+
+f_x<-apply(f_rel,1,sum) 
+f_y<-apply(f_rel,2,sum) 
+array1<-c(f_x)
+
+array2<-c(f_y)
+
+
+f_e<-outer(f_x,f_y)
+
+chiquadro_normalized<-(sum(f_rel^2/f_e)-1)
+chiquadro_normalized
+```
+
+The *prop.table( )* command allows you to calculate the relative conditional frequencies ie divides each absolute frequency in tabs by the corresponding marginal frequency. If we wanted to observe the distribution of each conditioned class at the result or vice versa, we would have to use the following commands: *prop.table(tablefreq,1)* and *prop.table(tablefreq,2)*
+
+**HISTOGRAMS** In the following section we present the two distribution of *Life.expectancy* and *Alcohol* variables. We compare the two distributions with the corresponding Normal distribution.
+
+```{r warning=FALSE}
+
+options(repr.plot.width=15,repr.plot.height=10,repr.plot.res=130)
+
+par(mar = c(3, 4, 2, 1) + 1.2,lwd=3)
+h<-hist(developed$Life.expectancy,main='Histogram Life Expectancy distribution for developed countries vs normal distribution',cex.main=0.9,col='white',border='blue',freq=FALSE, xlab='Life Expectancy',xlim=c(60,100),cex.axis=0.7)
+lines(density(developed$Life.expectancy,col='blue',lwd=2))
+x=seq(35,95,length.out=200)
+f=dnorm(x,mean=mean(developed$Life.expectancy),sd=sd(developed$Life.expectancy))
+lines(x,f,col='red',lwd=2)
+abline(v=median(developed$Life.expectancy),col=rgb(0.1,0.7,0.1), lwd=3, lty=2)
+abline(v=mean(developed$Life.expectancy), col="purple", lwd=3, lty=2)
+text("Mean", x = mean(developed$Life.expectancy), y = 0.03, srt = -90, pos = 4,cex=1.1,col='purple')
+text("Median", x = median(developed$Life.expectancy), y = 0.07, srt = -90, pos = 4,cex=1.1,col=rgb(0.1,0.7,0.1))
+text("Normal", x = 70, y = 0.031, srt = 62, pos = 4,cex=1.1,col="red")
+
+
+options(repr.plot.width=15,repr.plot.height=10,repr.plot.res=130)
+
+par(mar = c(3, 4, 2, 1) + 1.2,lwd=3)
+h<-hist(developing$Life.expectancy,main='Histogram Life Expectancy distribution for developing countries vs normal distribution',cex.main=0.9,col='white',border='blue',freq=FALSE, xlab='Life Expectancy',xlim=c(40,100),ylim=c(0,0.06),cex.axis=0.7)
+lines(density(developing$Life.expectancy,col='blue',lwd=2))
+x=seq(35,95,length.out=200)
+f=dnorm(x,mean=mean(developing$Life.expectancy),sd=sd(developing$Life.expectancy))
+lines(x,f,col='red',lwd=2)
+abline(v=median(developing$Life.expectancy),col=rgb(0.1,0.7,0.1), lwd=3, lty=2)
+abline(v=mean(developing$Life.expectancy), col="purple", lwd=3, lty=2)
+text("Mean", x = mean(developing$Life.expectancy),y = 0.03, srt = -90, pos = 4,cex=1.1,col='purple')
+text("Median", x = median(developing$Life.expectancy), y = 0.02, srt = -90, pos = 4,cex=1.1,col=rgb(0.1,0.7,0.1))
+text("Normal", x = 60, y = 0.04, srt = 62, pos = 4,cex=1.1,col="red")
+
+
+```
+
+From the previous graphs we notice that in developed countries the distribution of *Life.expectancy* does not present peculiar asymmetry while in developing countries we note a significant negative asymmetry. The symmetry and the asymmetry are detected by calculating the Pearson asymmetry index with the *skewness* function.
+
+```{r}
+library(moments)
+skewness(developed$Life.expectancy)
+skewness(developing$Life.expectancy)
+```
+
+With the command *kurtosis( )*, we compute the Pearson's Curtosis index that shows the defect of Curtosis in the two distributions. In fact the data are mostly concentrated around the mean value of the distributions.
+
+```{r}
+library(moments)
+kurtosis(developed$Life.expectancy)
+kurtosis(developing$Life.expectancy)
+```
+
+**LINEAR REGRESSION MODEL**
+
+The need to construct a linear regression model arises from the desire to investigate whether the 'alcohol rate' can be a significant variable in order to explain the development of 'life expectancy'. In this regard, a model has been created in which the regressive factor is the alcohol content in developed (and after in developing countries), while the one to be explained is the life expectancy in these countries.
+
+-   Deveoped countries
+
+```{r}
+y<-developed$Life.expectancy
+x<-developed$Alcohol
+
+mod1<-lm(y~x, data=developed)
+summary(mod1)
+```
+
+From the summary of the model, displayed with the *summary( )* command, we observe that the slope of the estimated line is not significant. This, from a theoretical point of view, translates into the non-acceptance of the null hypothesis of the system: H0: beta=0 vs H1:beta!= 0
+
+In fact the p-value (or the observed level of significance) is equal to 0.443 that is much higher than the level of significance 0.05, usually used in tests of hypotheses like these. Moreover, the intercept sign is a positive indication of a positive relationship between the explanatory variable and the dependent variable: from an epidemiological point of view this is not reliable. In fact, it is not acceptable that people accustomed to drinking have a longer life expectancy.
+
+Finally, the R2 of the model, that is the statistical indicator that explains how much variability of the variable response is explained by the variable independent is very low, equal to : 0.01644: only 1.64% of the variance of y ('life expectancy') is explained by x ('alcol rate').
+
+So based on the available data, we accept the null hypothesis that beta is equal to 0, So we accept the hypothesis that in developed countries alcohol consumption is not a variable that significantly affects life expectancy: the latter is influenced more by other variables.
+
+We then look for another variable that can significantly affect life expectancy: what would seem to be such is the 'mortality rate of adults'.
+
+```{r}
+y<-developed$Life.expectancy
+f<-developed$Adult.Mortality
+
+mod_bis<-lm(y~f, data=developed)
+summary(mod_bis)
+```
+
+Our hypothesis is confirmed from the summary of the model we observe that: - the variable f, that is, the 'adult mortality rate' is significant at an alpha = 0.001 level in explaining the life expectancy trend - the relationship between the two variables is negative and this is consistent with reality: if the adult mortality rate increases by one unit, life expectancy is reduced by 0.05.
+
+The defect of this model is that again the R2 is low (0.2589), that is the variable 'Mortality rate' explains only 26% of the total varibility of life expectancy. This is justified by the fact that life is influenced by innumerable variables, while here only one is analyzed.
+
+**Graphs of the two models**
+
+```{r}
+par(mfrow=c(1,2))
+plot(x, y, ylab = "life expectancy", xlab="alcohol")
+abline(lm(y ~ x), col = "red")
+
+plot(f, y, ylab = "life expectancy", xlab="adult mortality")
+abline(lm(y ~ f), col = "red")
+```
+
+Graphically we confirm what highlighted by the models: - the first graph shows substantially the absence of sigificativeness: the observations are scattered in the graph and not oriented along the line - the second graph shows an improvement in the estimate, even if the observations are not made along the regression line (evidence that R2 is low)
+
+For exercise and completeness (whit what has been done in the course) we attach the estimate of the linear regression model between the variable 'life expectancy' and 'alcohol rate' built manually, without the command R and then also the hypothesis test,
+
+```{r}
+#beta=cov(x,y)/var(x)
+cov_x_y<-my_cov(developed$Life.expectancy, developed$Alcohol)
+var_x<-my_var(developed$Life.expectancy) 
+beta_hat<-cov_x_y/var_x
+
+#alpha=y media- beta (x media)
+mean(y)
+mean(x)
+alpha_hat<-mean(y)-(beta_hat*mean(x))
+```
+
+**Hypothesis test** H0: beta=0 vs H1:beta!= 0 We want to verify the significance of the parameters estimated with the linear regression model (model: life expectancy\~alcohol)
+
+```{r}
+a<-0.001 #level of significance
+b_2<-coef(mod1)[[2]] #extraction of the second coefficient of the model (slope)
+se_b_2<-sqrt(vcov(mod1)[2,2]) #extraction the square root of the variance of beta from the 'variance-covariance matrix' 
+df<- df.residual(mod1) #degrees of freedom
+t1<-b_2/se_b_2 #statistic test observed
+tc1<-qt(1-a/2, df) #critic value
+t1;tc1
+
+
+a #level of significance 
+b_1<-coef(mod1)[[1]] #extraction of the first coefficient of the model (intercept)
+se_b_1<-sqrt(vcov(mod1)[1,1]) #extraction the square root of the variance of beta from the 'variance-covariance matrix'
+df<- df.residual(mod1) #degrees of freedom
+t1<-b_1/se_b_1 #statistic test observed
+tc1<-qt(1-a/2, df) #critic value
+t1;tc1
+```
+
+First test: we do not refuse the null hypothesis that the beta coefficient is equal to 0 (so it is not significant), because the t absolute value is lower than the t crical value. Second test: we rject the null hypothesis that the alpha coefficient is equal to 0 (so it is significant), because the t absolute value is grater than t critical value.
+
+-   Developing countries We replicate the same regression model for the developing countries:
+
+```{r}
+y1<-developing$Life.expectancy
+x1<-developing$Alcohol
+
+mod2<-lm(y1~x1, data=developing)
+summary(mod2)
+```
+
+In this model the alcohol content is significant in the distribution of y 'life expectancy' and with a slight positive influence. (We reject the null hypothesis that beta is equal to zero -H0:beta=0- and the fact that it is not significant). This seems to be a questionable conclusion, but it may be justified in two aspects, the first one is about technical issue: since the choice of do not eliminate outliers, justified by the desire to maintain the representativeness of the data (the outliers in fact concern countries with substantially opposite cultures: these are the Arab countries that by culture prohibit the consumption of alcoholic beverages and Russia that has a long tradition of consumption and production of alcoholic beverages). The second aspect, on the other hand, concerns a socio-demographic component: in truly poor countries alcohol appears to be a secondary energy source in daily calorie consumption, so even if in developed countries it is known to be harmful from a health point of view, In developing countries or countries where the negative health components are very different, the food use of alcohol can be a component of survival.
+
+```{r}
+y1<-developing$Life.expectancy
+f1<-developing$Adult.Mortality
+
+mod2_bis_bis<-lm(y1~f1, data=developing)
+summary(mod2_bis_bis)
+```
+
+From the summary of the model we do not notice inconsistencies with reality: the adult mortality rate is a significant variable to explain life expectancy (that is, we reject the null hypothesis that the beta coefficient is equal to 0) and influences the latter in a negative way. Moreover, the R2 of this model is quite good, 54% of the variability of y -life expectancy- is explained by the explanatory variable -adult mortality rate-. This bears witness to the fact that in developing countries one of the determining factors in life expectancy is still adult morality, while other factors are less influential than they are in developed countries.
+
+**Graphs of the two models**
+
+```{r, echo=FALSE}
+par(mfrow=c(1,2))
+plot(x1, y1, ylab = "life expectancy", xlab="alcohol")
+abline(lm(y1 ~ x1), col = "red")
+
+
+plot(f1, y1, ylab = "life expectancy", xlab="adult mortality")
+abline(lm(y1 ~ f1), col = "red")
+
+```
+
+From the graphs we see clearly what emerged from the models: - the first graph is strongly influenced by the values associated with Arab countries where alcohol consumption is almost null - the second graph shows the inverse relationship between life expectancy and adult mortality in developing countries
+
+We empirically verify that the beta coefficient is significant for the model Life expectancy \~ Adult mortality H0: b=0 vs H1: b!=0
+
+```{r}
+a<-0.05 #significance level 
+b2_bis<-coef(mod2_bis_bis)[[2]] #extraction of second coefficient 
+se_b2_bis<-sqrt(vcov(mod2_bis_bis)[2,2]) #extraction the square root of the variance of beta from the "variance-covariance matrix"
+df_bis<- df.residual(mod2_bis_bis) #degrees of freedom
+t_bis<-b2_bis/se_b2_bis #value of statistic test
+tc_bis<-qt(1-a/2, df_bis) #critic value
+t_bis;tc_bis 
+```
+
+Since the absolute value of the statistic test is greater than the critical value, we reject the null hypothesis at a significance level of 5%.
+
+At this point in the analysis, after observing that life expectancy is significantly explained by the mortality rate for both developed and developing countries, we decide to investigate if there is a difference between the years of study (variable 'Schooling') for the two groups. With this purpose, we have taken all the available data (38) for the developed countries, while for those developing we have sampled (38) as many as the observations of developed.
+
+```{r}
+#we observe the statistics of synthesis of the two datasets and verify that the variable schooling is indeed quantitative
+summary(developed_tot) 
+summary(developing_tot)
+```
+
+After making sure that the schooling variable is quantitative, we defined the two variables (schooling_developed and schooling_developing) extracting them from the two respective datasets and we sampled 38 values (with reimmission) from the observations of developing countries.
+
+```{r}
+#we want to see if there is difference between the average school years between developed and undeveloped countries
+
+schooling_developed<-developed_tot$Schooling
+schooling_developing<-developing_tot$Schooling
+
+#extract 38 values from the developing subset to create a dataframe with the same number of developed and developing observation
+set.seed(123) #we fix the 'seeds' to be able to extract pseudo random numbers and guarantee the replicability of the extraction
+schooling_developing_sample<-sample(schooling_developing, 38, replace=TRUE )
+schooling_developing_sample
+```
+
+Creation of the vector of the observations and join them in a single vector, then coding it as double
+
+```{r}
+#vector with the 38 values for developed countires
+scho_devlopd<-c('20.40000', '15.90000', '16.30000', '14.80000', '15.90000', '15.10000', '14.00000', '11.99279', '19.20000', '16.50000',
+                '17.00000', '16.20000', '17.00000', '17.20000', '15.80000', '19.00000', '18.60000', '16.00000', '16.30000', '15.30000',
+                 '16.00000', '16.50000', '13.90000', '14.30000', '18.10000', '19.20000', '17.70000', '16.40000', '16.80000', '14.70000',
+                '15.40000', '15.10000', '17.60000', '17.60000', '15.80000', '15.90000', '11.99279','11.99279')
+
+#vector with the 38 values for developing countires 
+scho_devloping<-c('12.80000', '13.50000',  '4.90000', '13.20000', '12.80000',  '4.90000', '12.40000', '11.60000', '11.60000',  '5.30000',
+                 '11.99279', '13.40000', '10.80000', '10.90000', '12.70000', '11.99279', '12.70000', '14.70000', '13.20000', '11.99279',
+                 '13.00000', '10.70000',  '9.00000', '13.60000', '11.10000', '12.70000', '11.99279', '13.40000', '10.60000', '10.70000',
+                 '15.20000', '10.70000', '11.10000', '12.80000', '10.80000', '10.70000', '12.80000', '14.20000')
+#vettoore con i 38 valori di developed  e i 38 di developing
+scho<-c('20.40000', '15.90000', '16.30000', '14.80000', '15.90000', '15.10000', '14.00000', '11.99279', '19.20000', '16.50000',
+        '17.00000', '16.20000', '17.00000', '17.20000', '15.80000', '19.00000', '18.60000', '16.00000', '16.30000', '15.30000',
+        '16.00000', '16.50000', '13.90000', '14.30000', '18.10000', '19.20000', '17.70000', '16.40000', '16.80000', '14.70000',
+        '15.40000', '15.10000', '17.60000', '17.60000', '15.80000', '15.90000', '11.99279','11.99279','12.80000', '13.50000',  '4.90000', '13.20000', '12.80000',  '4.90000', '12.40000', '11.60000', '11.60000',  '5.30000',
+'11.99279', '13.40000', '10.80000', '10.90000', '12.70000', '11.99279', '12.70000', '14.70000', '13.20000', '11.99279',
+'13.00000', '10.70000',  '9.00000', '13.60000', '11.10000', '12.70000', '11.99279', '13.40000', '10.60000', '10.70000',
+'15.20000', '10.70000', '11.10000', '12.80000', '10.80000', '10.70000', '12.80000', '14.20000')
+scho<-as.double(scho)
+
+```
+
+Creating the dichotomous 'status' variable to split observations in groups
+
+```{r}
+status<-c(rep('developed', 38), rep('developing', 38))
+```
+
+Creaion of the dataframe useful for the test, and then the observation of the structure (*str()*) and statistics of synthesis (*summary()*)
+
+```{r}
+data_schooling<-data.frame(scho, status)
+
+str(data_schooling)
+summary(data_schooling)
+```
+
+After putting together all the 'ingredients', we can dedicate to the test in the two-tailed form: H0:averages of the two groups are equal (mean1-mean2=0) H1:Averages of the two groups differ (mean1-mean2 !=0)
+
+```{r}
+t.test(scho ~ status, data = data_schooling,
+       alternative = 'two.sided',     
+       conf.level = .95)
+
+```
+
+By the fact that -p value is very small and certainly less than 5% significance (alpha=0.05) - the value of t observed does not belong to the confidence interval calculated with a confidence level of 95% [3.518023, 5.482356]
+
+We reject the null hypothesis, at a level of significance of 5%, that there is no difference between the averages of the two groups. In fact, there is a difference between the two sets, developing and developed: indeveloped countries, schooling is compulsory until advanced age and the drop-out rate is considerably reduced than in developing countries. In these countries, the proportion of children or young people who work and leave school early is still very high.
+
+We replicate the test to a 'one' tail, so we are imposing the following hypotheses: H0:mean1-mean2\<0 H1:mean1-mean2 \>=0
+
+So We want to test if the average of the second group -developing- is greater than the one of the first
+
+```{r}
+t.test(scho ~ status, data = data_schooling,
+       alternative = 'greater',     
+       conf.level = .95)
+
+```
+
+Since the observed p value or empirical value (p-value = 6.368e-14) is less than alpha, significance level, we reject the null hypothesis.
+
+So we further confirm that in developed countries on average, more time is devoted to education than in developing countries.
+
+**MULTIPLE LINEAR REGRESSION ANALYSIS**
+
+Running a regression model with a lot of variables (including the irrelevant ones) will lead to an unnecessary complex model. A simple way of running a regression model with many variables (consistent or not consistent) is the *Stepwise regression* method. In this way we select step by step the most important variables getting an easily interpretative model. We concentrate the attention on the *backward stepwise selection* method which begins with a model that contains all variables we want consider, and then removes the least significant variables one after the other. The final model is reached when a specific rule makes the running stops. The target variable of our regression model is $Y$, a linear function of the variables $x_{ij}$. The following expression shows the relationship between each observation of a specific variable of the dataset and the predicted value:
+
+$$ \\ y_i =\gamma_0 + \gamma_1x_{1i} + \gamma_2x_{2i}+ ...\gamma_nx_{ni}+\epsilon_i \\$$
+
+where $\epsilon_i$ are the residuals associated to each observation. We decide that *Life.expectancy* is the target variable that will be explained through 12 specific variables of our dataset, namely:\
+
+-   `Status (a dummy variable)`
+
+-   `Adult.Mortality`
+
+-   `Alcohol`
+
+-   `Hepatitis.B`
+
+-   `Measles`
+
+-   `BMI`
+
+-   `under.five.deaths`
+
+-   `Polio`
+
+-   `Total.expenditure`
+
+-   `HIV.AIDS`
+
+-   `GDP`
+
+-   `Income.composition.of.resources`\
+    \
+
+To avoid the multicollinearity problem we have decided a list of few varibles. As a matter of fact, this effect would make $\gamma$coefficients numerically unstable. Some variables are not taken in consideration because they are too little correlated with the target variable *Life.expectancy* (for example *Population* or *Schooling* variables). Since it is a qualitative variable, the variable *Status* is changed into a binary variable which can assume only 2 values: 0 (*Developed*) and 1 (*Developing*).
+
+```{r}
+developed_developing<-read.csv('C:\\Users\\HP\\Desktop\\STATISTICA\\developed&developing.csv', header=TRUE, sep=',')
+head(developed_developing)
+as.factor(developed_developing$Status)
+developed_developing[developed_developing$Status=="Developed",]$Status=0
+developed_developing[developed_developing$Status=="Developing",]$Status=1
+as.numeric(developed_developing$Status)
+
+```
+
+We split developed_developing dataset in two parts: *train* and *test*. Training consists of 80% of data and testing is made by the other 20%. The latter is to verify the reliability of our model, namely how good we are able to learn the data behavior by means of the model.
+
+```{r}
+rows<-nrow(developed_developing)
+index<-0.80*rows
+train <- developed_developing[1:index, ]
+test <- developed_developing[-(1:index), ]
+```
+
+We start with the first model:
+
+```{r}
+model_1<-lm(Life.expectancy~Status+ Adult.Mortality + Alcohol + Hepatitis.B + Measles + BMI+ under.five.deaths + Polio +Total.expenditure+HIV.AIDS + GDP+Income.composition.of.resources,train)
+summary(model_1)
+```
+
+The F test evaluates the joint significance of the coefficients, so the the model is significant. First of all we notice that the *p-value* is less than 0.1 (which has been decided as the stopping rule, namely a level of significance of the variable of 0.1). The *p-value* is less than 2.2e-16, so we reject the null hypothesis according to which all the coefficients are null. The t test ( *Pr(\>\|t\|)* ) evaluates the significance of each coefficients $\gamma$ in our case the *Intercept* and all the other variables used in the model. If the *p-value* is lower than the chosen significance level (0.1), we reject the hypothesis that the coefficient is zero and the corresponding regressor is relevant for explaining the target variable. In our case only *Intercept* ,*Status1*, *Adult.Mortality, Hepatitis.B, under.five.deaths,Total expenditure,HIV.AIDS,GDP*,are less than 0.1 (with different levels of significance). Coefficients express the variation that the target variable has following a unitary variation of the regressor, provided that the value of the other regressors is kept constant. For instance, *Life.expectancy* has a negative variation of *-1.550e+00* as a unit of *HIV.AIDS* varies.\
+The model explains 79,01% of the variability of the target variable, with a $R^{2}$ near to $R^{2}_{adjusted}$. The non-significant variables are eliminated one after the other, starting with the one that has the greatest level of significance observed: *Polio*.
+
+```{r}
+model_2<-update(model_1,.~.-Polio)
+summary(model_2)
+```
+
+We notice that almost nothing changes but the $R^{2}_{adjusted}$ which increases slightly.\
+Now we remove *Measles*:
+
+```{r}
+model_3<-update(model_2,.~.-Measles)
+summary(model_3)
+```
+
+The table above shows a little variation on the $R^{2}$ (which slightly decreases) and the $R^{2}_{adjusted}$ increases. Furthermore, the variables $BMI$, $Total.expenditure$ have a reduced level of significance.\
+Now we delete $Income.composition.of.resources$ variable:
+
+```{r}
+model_4<-update(model_3,.~.-Income.composition.of.resources)
+summary(model_4)
+```
+
+Again, almost nothing changes but a little variation of the $R^{2}$ and $R^{2}_{adjusted}$.\
+We remove $under.five.deaths$ variable
+
+```{r}
+model_5<-update(model_4,.~.-under.five.deaths)
+summary(model_5)
+```
+
+The two variables $BMI$ and $Total.expenditure$ come back to the previous level of significance (*model_4*). We remove $Alcohol$ variable:
+
+```{r}
+model_6<-update(model_5,.~.-Alcohol)
+summary(model_6)
+```
+
+Removing $Alcohol$ variable we see that $R^{2}_{adjusted}$ decreases significantly. We can say that the $R^{2}_{adjusted}$ decreases if a predictor improves the model less than what is predicted by chance. For this reason we stops the search to the *model_5* which explains 78,45% of *Life.expectancy* variability. All the considerations above can be made by using the automatically methods from R package $olsrr$: $ols$$step$$backward$$p()$ and $ols$$step$$backward$$aic$ in order to confirm our model choice. The selection starts from the first model with all the variables (*model_1*) and excludes steps by steps the variables that are essentially non significant contributors to the model. In the first method the training procedure stops when all the variables have the p-values less than 0.1. The second one, AIC (*penalized-likelihood Akaike's criteria*), estimates the quality of each model, relative to each of the other models and favors the non-loss of information.
+
+```{r}
+library("olsrr")
+backward_model.p<-ols_step_backward_p(model_1, prem=0.1, details=TRUE)
+backward_model.aic<-ols_step_backward_aic(model_1, details=TRUE)
+```
+
+As we expected, the *backward stepwise* selection based on p-value gives the same result of *model_6*, while the backward stepwise selection based on the AIC gives the same result of *model_5* which includes $Alcohol$ variable (non-loss of information about variables.) Scatterplot of Actual vs Predicted values for the target variable shows how much our results (the points) are close to the regressed line.
+
+```{r}
+options(repr.plot.width=10,repr.plot.height=10,repr.plot.res=150)
+
+plot(predict(model_5), train$Life.expectancy, xlab = "Predicted Values of Life.expectancy", ylab = "Observed Values of Life.expectancy", main="Scatterplot Predicted vs Observed values of Life.expectancy")
+abline(a = 0, b = 1, col = "green", lwd = 2)
+```
+
+We use the coefficient of determination $R^{2}$ (the percentage of the variation of the target variable explained by the model) to evaluate how good the multiple regression fit is. For this reason we decide to compare the variation of $R^{2}$ and $R^{2}_{adjusted}$ when we removed the non-significant influencing variables from the model:
+
+```{r}
+#memorizzo r adjusted 
+M1=summary(model_1)$adj.r.squared
+M2=summary(model_2)$adj.r.squared
+M3=summary(model_3)$adj.r.squared
+M4=summary(model_4)$adj.r.squared
+M5=summary(model_5)$adj.r.squared
+M6=summary(model_6)$adj.r.squared
+
+#memorizzo r 
+M1r=summary(model_1)$r.squared
+M2r=summary(model_2)$r.squared
+M3r=summary(model_3)$r.squared
+M4r=summary(model_4)$r.squared
+M5r=summary(model_5)$r.squared
+M6r=summary(model_6)$r.squared
+
+tab1=rbind(round(M1,digits=3),round(M2,digits=3),round(M3,digits=3),round(M4,digits=3),round(M5,digits=3),round(M6,digits=3))
+tab2=rbind(round(M1r,digits=3),round(M2r,digits=3),round(M3r,digits=3),round(M4r,digits=3),round(M5r,digits=3),round(M6r,digits=3))
+tab3=cbind(tab1,tab2)
+
+colnames(tab3)=c("Adjusted_R_squared","R_squared")
+tab3
+```
+
+$R^2$ decreases from a initially value of 0.790 to 0.781. $R^2_{adjusted}$ instead, which takes into account the degrees of freedom of the model, firstly increases and then decreases decisively (to the second decimal digit) when the *model_6* is computed.
+
+The difference between the predicted and test data gives 0.68 (the accuracy of the model), while computing the train data we got an accuracy of 0.784. Maybe, the reason for this discrepancy is that we don't have enough data in our initial dataset to get good training and predict the rest of *Life_expectancy* observations.
+
+```{r}
+test$Predicted_Life_expectancy <- predict(model_5, test)
+
+test[,c("Life.expectancy", "Predicted_Life_expectancy")]
+
+actual <- test$Life.expectancy
+
+preds <- test$Predicted_Life_expectancy
+
+rss <- sum((preds - actual)^2)
+tss <- sum((actual - mean(actual))^2)
+rsq <- 1 - rss/tss
+rsq
+
+```
